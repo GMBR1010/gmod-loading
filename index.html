@@ -18,7 +18,7 @@
             --border-color: #0f2f0f;
             --success: #00ff41;
             --danger: #ff3344;
-            --verified-blue: #00bfff;
+            --verified-blue: #1da1f2;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -146,10 +146,20 @@
             box-shadow: 0 0 15px rgba(255, 51, 68, 0.4);
         }
 
+        .btn-admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-admin:hover {
+            box-shadow: 0 0 25px rgba(102, 126, 234, 0.6);
+        }
+
         .btn-verify {
             background: var(--verified-blue);
             color: #fff;
-            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+            box-shadow: 0 0 15px rgba(29, 161, 242, 0.4);
         }
 
         .btn-small { padding: 8px 14px; font-size: 10px; }
@@ -179,19 +189,44 @@
             gap: 6px;
         }
 
+        /* Selo de verificação - Bolinha azul */
         .verified-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 18px; height: 18px;
+            width: 20px; 
+            height: 20px;
             background: var(--verified-blue);
             border-radius: 50%;
-            font-size: 10px;
-            color: #fff;
-            box-shadow: 0 0 10px rgba(0, 191, 255, 0.6);
+            margin-left: 4px;
+            box-shadow: 0 0 10px rgba(29, 161, 242, 0.6);
+            position: relative;
         }
 
-        .verified-badge::before { content: '✓'; font-weight: bold; }
+        .verified-badge svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+
+        /* Selo menor para os clips */
+        .author-verified {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px; 
+            height: 16px;
+            background: var(--verified-blue);
+            border-radius: 50%;
+            margin-left: 4px;
+            box-shadow: 0 0 8px rgba(29, 161, 242, 0.5);
+        }
+
+        .author-verified svg {
+            width: 10px;
+            height: 10px;
+            fill: white;
+        }
 
         .admin-badge {
             background: var(--danger);
@@ -353,21 +388,7 @@
             font-weight: bold;
         }
 
-        .author-name { display: flex; align-items: center; gap: 4px; }
-
-        .author-verified {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 14px; height: 14px;
-            background: var(--verified-blue);
-            border-radius: 50%;
-            font-size: 8px;
-            color: #fff;
-            box-shadow: 0 0 8px rgba(0, 191, 255, 0.6);
-        }
-
-        .author-verified::before { content: '✓'; font-weight: bold; }
+        .author-name { display: flex; align-items: center; gap: 2px; }
 
         .video-actions {
             display: flex;
@@ -694,11 +715,11 @@
     <div class="modal-overlay" id="adminModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">🛡️ ADMIN</h3>
+                <h3 class="modal-title">🛡️ PAINEL ADMIN</h3>
                 <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
             </div>
             <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
-                Clique para verificar ou remover verificação dos usuários.
+                Gerencie as verificações dos usuários. Clique para dar ou remover o selo.
             </p>
             <div class="user-list" id="userList">
                 <div class="loading">
@@ -710,6 +731,9 @@
     </div>
 
     <script>
+        // SVG do check para o selo de verificação
+        const checkSVG = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`;
+
         const CONFIG = {
             MASTER_KEY: '$2a$10$4ZMKXJ8Ixb.oX.itZmWdu.0vbXvVfSRNOQFMI86V2Xbyyc48DserG',
             USERS_BIN_ID: '696161fdae596e708fd0cd15',
@@ -811,12 +835,12 @@
                 const isVerified = isUserVerified(currentUser.username);
                 navButtons.innerHTML = `
                     <button class="btn btn-primary" onclick="openModal('postModal')">+ CLIP</button>
-                    ${currentUser.isAdmin ? '<button class="btn btn-verify" onclick="openAdminPanel()">🛡️ ADMIN</button>' : ''}
+                    ${currentUser.isAdmin ? '<button class="btn btn-admin" onclick="openAdminPanel()">🛡️ ADMIN</button>' : ''}
                     <div class="user-info">
                         <div class="user-avatar">${currentUser.username.charAt(0).toUpperCase()}</div>
                         <span class="user-name">
                             ${escapeHtml(currentUser.username)}
-                            ${isVerified ? '<span class="verified-badge"></span>' : ''}
+                            ${isVerified ? `<span class="verified-badge">${checkSVG}</span>` : ''}
                             ${currentUser.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
                         </span>
                     </div>
@@ -877,7 +901,7 @@
                                     <div class="author-avatar">${video.author.charAt(0).toUpperCase()}</div>
                                     <span class="author-name">
                                         ${escapeHtml(video.author)}
-                                        ${authorVerified ? '<span class="author-verified"></span>' : ''}
+                                        ${authorVerified ? `<span class="author-verified">${checkSVG}</span>` : ''}
                                     </span>
                                 </div>
                                 <span>${formatDate(video.createdAt)}</span>
@@ -914,7 +938,7 @@
                             <div class="user-item-avatar">${username.charAt(0).toUpperCase()}</div>
                             <span class="user-item-name">
                                 ${escapeHtml(username)}
-                                ${isVerified ? '<span class="verified-badge"></span>' : ''}
+                                ${isVerified ? `<span class="verified-badge">${checkSVG}</span>` : ''}
                                 ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
                             </span>
                         </div>
